@@ -174,40 +174,40 @@ async function apiRequest<T>(
 // ---------- Categories API ----------
 export const categoriesAPI = {
   getAll: () => apiRequest<Category[]>("/api/categories"),
-  getById: (id: number) => apiRequest<Category>(`/categories/${id}`),
+  getById: (id: number) => apiRequest<Category>(`/api/categories/${id}`),
   create: (name: string) =>
     apiRequest<Category>("/api/categories", {
       method: "POST",
       body: JSON.stringify({ name }),
     }),
   update: (id: number, name: string) =>
-    apiRequest<Category>(`/categories/${id}`, {
+    apiRequest<Category>(`/api/categories/${id}`, {
       method: "PUT",
       body: JSON.stringify({ name }),
     }),
   delete: (id: number) =>
-    apiRequest(`/categories/${id}`, { method: "DELETE" }),
+    apiRequest(`/api/categories/${id}`, { method: "DELETE" }),
 };
 
 // ---------- Dresses API ----------
 export const dressesAPI = {
   getAll: () => apiRequest<Dress[]>("/api/dresses"),
-  getById: (id: number) => apiRequest<Dress>(`/dresses/${id}`),
+  getById: (id: number) => apiRequest<Dress>(`/api/dresses/${id}`),
   create: (data: Partial<Dress>) =>
     apiRequest<Dress>("/api/dresses", {
       method: "POST",
       body: JSON.stringify(data),
     }),
   update: (id: number, data: Partial<Dress>) =>
-    apiRequest<Dress>(`/dresses/${id}`, {
+    apiRequest<Dress>(`/api/dresses/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     }),
   delete: (id: number) =>
-    apiRequest(`/dresses/${id}`, { method: "DELETE" }),
+    apiRequest(`/api/dresses/${id}`, { method: "DELETE" }),
 
   addColor: (dressId: number, colorName: string) =>
-    apiRequest<DressColor>(`/dresses/${dressId}/colors`, {
+    apiRequest<DressColor>(`/api/dresses/${dressId}/colors`, {
       method: "POST",
       body: JSON.stringify({ colorName }),
     }),
@@ -217,7 +217,7 @@ export const dressesAPI = {
     files.forEach((file) => formData.append("images", file));
 
     try {
-      const res = await fetch(`/dresses/colors/${colorId}/images`, {
+      const res = await fetch(`/api/dresses/colors/${colorId}/images`, {
         method: "POST",
         body: formData,
       });
@@ -231,65 +231,65 @@ export const dressesAPI = {
   },
 
   deleteColor: (colorId: number) =>
-    apiRequest(`/dresses/colors/${colorId}`, { method: "DELETE" }),
+    apiRequest(`/api/dresses/colors/${colorId}`, { method: "DELETE" }),
   deleteImage: (imageId: number) =>
-    apiRequest(`/dresses/images/${imageId}`, { method: "DELETE" }),
+    apiRequest(`/api/dresses/images/${imageId}`, { method: "DELETE" }),
 };
 
 // ---------- Schedules API ----------
 export const schedulesAPI = {
   getAll: (status?: string) => {
     const query = status ? `?status=${status}` : "";
-    return apiRequest<Schedule[]>(`/schedules${query}`);
+    return apiRequest<Schedule[]>(`/api/schedules${query}`);
   },
-  getById: (id: number) => apiRequest<Schedule>(`/schedules/${id}`),
+  getById: (id: number) => apiRequest<Schedule>(`/api/schedules/${id}`),
   create: (data: Omit<Schedule, "id" | "createdAt">) =>
     apiRequest<Schedule>("/api/schedules", {
       method: "POST",
       body: JSON.stringify(data),
     }),
   updateStatus: (id: number, status: string) =>
-    apiRequest<Schedule>(`/schedules/${id}/status`, {
+    apiRequest<Schedule>(`/api/schedules/${id}/status`, {
       method: "PATCH",
       body: JSON.stringify({ status }),
     }),
   delete: (id: number) =>
-    apiRequest(`/schedules/${id}`, { method: "DELETE" }),
+    apiRequest(`/api/schedules/${id}`, { method: "DELETE" }),
 };
 
 // ---------- Contacts API ----------
 export const contactsAPI = {
   getAll: () => apiRequest<Contact[]>("/api/contacts"),
-  getById: (id: number) => apiRequest<Contact>(`/contacts/${id}`),
+  getById: (id: number) => apiRequest<Contact>(`/api/contacts/${id}`),
   create: (data: Omit<Contact, "id" | "createdAt">) =>
     apiRequest<Contact>("/api/contacts", {
       method: "POST",
       body: JSON.stringify(data),
     }),
   delete: (id: number) =>
-    apiRequest(`/contacts/${id}`, { method: "DELETE" }),
+    apiRequest(`/api/contacts/${id}`, { method: "DELETE" }),
 };
 
 // ---------- Revenues API ----------
 export const revenuesAPI = {
   getAll: () => apiRequest<Revenue[]>("/api/revenues"),
-  getById: (id: number) => apiRequest<Revenue>(`/revenues/${id}`),
+  getById: (id: number) => apiRequest<Revenue>(`/api/revenues/${id}`),
   getByMonth: (month: string) =>
-    apiRequest<Revenue>(`/revenues/month/${month}`),
+    apiRequest<Revenue>(`/api/revenues/month/${month}`),
   createOrUpdate: (data: Partial<Revenue>) =>
     apiRequest<Revenue>("/api/revenues", {
       method: "POST",
       body: JSON.stringify(data),
     }),
   delete: (id: number) =>
-    apiRequest(`/revenues/${id}`, { method: "DELETE" }),
+    apiRequest(`/api/revenues/${id}`, { method: "DELETE" }),
 };
 
 // ---------- Banners API (normalisé) ----------
 export const bannersAPI = {
   getAll: async (activeOnly?: boolean) => {
     const query = activeOnly ? "?active=true" : "";
-    const res = await apiRequest<BannerApi[]>(`/banners${query}`);
+    const res = await apiRequest<BannerApi[]>(`/api/banners${query}`);
     if (!res.success || !Array.isArray(res.data))
       return { success: false, data: [] as Banner[] };
 
@@ -304,7 +304,7 @@ export const bannersAPI = {
     return { success: true, data };
   },
 
-  getById: (id: number) => apiRequest<Banner>(`/banners/${id}`),
+  getById: (id: number) => apiRequest<Banner>(`/api/banners/${id}`),
 
   upload: async (file: File, sortOrder?: number, isActive?: boolean) => {
     const formData = new FormData();
@@ -313,7 +313,7 @@ export const bannersAPI = {
     if (isActive !== undefined) formData.append("isActive", String(isActive));
 
     try {
-      const res = await fetch(`/banners`, { method: "POST", body: formData });
+      const res = await fetch(`/api/banners`, { method: "POST", body: formData });
       return (await res.json()) as ApiResponse;
     } catch (error) {
       return {
@@ -324,20 +324,20 @@ export const bannersAPI = {
   },
 
   update: (id: number, data: Partial<Banner>) =>
-    apiRequest<Banner>(`/banners/${id}`, {
+    apiRequest<Banner>(`/api/banners/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     }),
 
   delete: (id: number) =>
-    apiRequest(`/banners/${id}`, { method: "DELETE" }),
+    apiRequest(`/api/banners/${id}`, { method: "DELETE" }),
 };
 
 // ---------- About Us Images API (normalisé) ----------
 export const aboutImagesAPI = {
   getAll: async (activeOnly?: boolean) => {
     const query = activeOnly ? "?active=true" : "";
-    const res = await apiRequest<AboutImageApi[]>(`/about-us-images${query}`);
+    const res = await apiRequest<AboutImageApi[]>(`/api/about-us-images${query}`);
     if (!res.success || !Array.isArray(res.data))
       return { success: false, data: [] as AboutImage[] };
 
@@ -353,7 +353,7 @@ export const aboutImagesAPI = {
   },
 
   getById: (id: number) =>
-    apiRequest<AboutImage>(`/about-us-images/${id}`),
+    apiRequest<AboutImage>(`/api/about-us-images/${id}`),
 
   upload: async (file: File, sortOrder?: number, isActive?: boolean) => {
     const formData = new FormData();
@@ -362,7 +362,7 @@ export const aboutImagesAPI = {
     if (isActive !== undefined) formData.append("isActive", String(isActive));
 
     try {
-      const res = await fetch(`/about-us-images`, {
+      const res = await fetch(`/api/about-us-images`, {
         method: "POST",
         body: formData,
       });
@@ -376,14 +376,14 @@ export const aboutImagesAPI = {
   },
 
   update: (id: number, data: Partial<AboutImage>) =>
-    apiRequest<AboutImage>(`/about-us-images/${id}`, {
+    apiRequest<AboutImage>(`/api/about-us-images/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     }),
 
   delete: (id: number) =>
-    apiRequest(`/about-us-images/${id}`, { method: "DELETE" }),
+    apiRequest(`/api/about-us-images/${id}`, { method: "DELETE" }),
 };
 
 // ---------- Health ----------
-export const healthCheck = () => apiRequest("/health");
+export const healthCheck = () => apiRequest("/api/health");

@@ -159,11 +159,10 @@ export default function DressesPage() {
         if (!categoryIds.includes(selectedCategory)) return false;
       }
 
-      // doit avoir au moins une image
       const firstImg =
         dress.colors?.[0]?.images?.[0]?.imageUrl ??
-        dress.colors?.[0]?.images?.[0]?.image_url;
-      if (!firstImg) return false;
+        dress.colors?.[0]?.images?.[0]?.image_url ??
+        "";
 
       if (
         filters.search &&
@@ -468,12 +467,12 @@ export default function DressesPage() {
 
       {/* Grille de robes */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredDresses.map((dress) => {
-          const firstImg =
-            dress.colors?.[0]?.images?.[0]?.imageUrl ??
-            dress.colors?.[0]?.images?.[0]?.image_url ??
-            "";
-          const src = normalizeImagePath(firstImg);
+        {filteredDresses.map((dress, idx) => {
+                const firstImg =
+                  dress.colors?.[0]?.images?.[0]?.imageUrl ??
+                  dress.colors?.[0]?.images?.[0]?.image_url ??
+                  "";
+                const src = normalizeImagePath(firstImg);
 
           return (
             <div
@@ -496,10 +495,13 @@ export default function DressesPage() {
                 <div className="space-y-2">
                   <div className="aspect-[3/4] overflow-hidden rounded-lg">
                     <Image
-                      src={src || "/fallback.jpg"} // optionnel: image de secours
+                      src={src || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='400'><rect width='100%' height='100%' fill='%23e5e7eb'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%236b7280' font-size='20'>No Image</text></svg>"}
                       alt={dress.name}
                       width={300}
                       height={400}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                      priority={idx === 0}
+                      unoptimized
                       className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>

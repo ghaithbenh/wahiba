@@ -169,6 +169,8 @@ export default function Home() {
                     alt={`carousel-${idx}`}
                     width={1200}
                     height={600}
+                    sizes="100vw"
+                    priority={idx === 0}
                     className="w-full h-full object-cover flex-shrink-0"
                     style={{ width: `${100 / carouselImages.length}%` }}
                     data-carousel={idx}

@@ -41,19 +41,24 @@ export default function SchedulesPage() {
   const [filter, setFilter] = useState<string>('');
 
   const fetchSchedules = useCallback(async () => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
     try {
-      const url = filter
-        ? `${API_URL}/api/schedules?status=${filter}`
-        : `${API_URL}/api/schedules`;
-      const response = await fetch(url);
+      const url = filter ? `/api/schedules?status=${filter}` : `/api/schedules`;
+      const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
       const data = await response.json();
       if (data.success) {
         setSchedules(data.data);
       }
     } catch (error) {
-      console.error('Error fetching schedules:', error);
-      toast.error('Failed to fetch appointments');
+      if ((error as any)?.name === 'AbortError') {
+        toast.error('Request timed out');
+      } else {
+        console.error('Error fetching schedules:', error);
+        toast.error('Failed to fetch appointments');
+      }
     } finally {
+      clearTimeout(timeout);
       setLoading(false);
     }
   }, [filter]);
@@ -64,7 +69,7 @@ export default function SchedulesPage() {
 
   const handleStatusChange = async (id: number, newStatus: string) => {
     try {
-      const response = await fetch(`${API_URL}/api/schedules/${id}/status`, {
+      const response = await fetch(`/api/schedules/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -88,7 +93,7 @@ export default function SchedulesPage() {
     if (!confirm('Are you sure you want to delete this appointment?')) return;
 
     try {
-      const response = await fetch(`${API_URL}/api/schedules/${id}`, {
+      const response = await fetch(`/api/schedules/${id}`, {
         method: 'DELETE',
       });
 
@@ -159,7 +164,7 @@ export default function SchedulesPage() {
                       ? new Date(schedule.try_on_date).toLocaleDateString()
                       : 'N/A'}
                   </TableCell>
-                  <TableCell>${schedule.total?.toFixed(2) || '0.00'}</TableCell>
+                  <TableCell>${Number(schedule.total ?? 0).toFixed(2)}</TableCell>
                   <TableCell>
                     <select
                       value={schedule.status}

@@ -11,13 +11,13 @@ import Image from 'next/image';
 
 type DressImage = {
   id: number;
-  image_url: string;   // /uploads/dresses/...
-  sort_order: number;
+  imageUrl: string;   // /uploads/dresses/...
+  sortOrder: number;
 };
 
 type DressColor = {
   id: number;
-  color_name: string;
+  colorName: string;
   images: DressImage[];
 };
 
@@ -198,7 +198,7 @@ export default function DressDetailPage() {
           dress.colors.map((color) => (
             <Card key={color.id}>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>{color.color_name}</CardTitle>
+                <CardTitle>{color.colorName}</CardTitle>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -213,7 +213,7 @@ export default function DressDetailPage() {
               <CardContent className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Upload Images for {color.color_name}
+                    Upload Images for {color.colorName}
                   </label>
                   <div className="flex items-center gap-2">
                     <Input
@@ -237,15 +237,21 @@ export default function DressDetailPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {color.images.map((image) => (
                         <div key={image.id} className="relative group">
-                          {/* ✅ Ne pas préfixer par API_URL. Les fichiers /uploads sont servis par Nginx */}
-                          <Image
-                            src={image.image_url}
-                            alt={`${color.color_name} ${image.sort_order + 1}`}
-                            width={300}
-                            height={200}
-                            unoptimized
-                            className="rounded-lg object-cover w-full h-48"
-                          />
+                          {image.imageUrl ? (
+                            <Image
+                              src={image.imageUrl}
+                              alt={`${color.colorName} ${image.sortOrder + 1}`}
+                              width={300}
+                              height={200}
+                              sizes="(max-width: 768px) 50vw, 25vw"
+                              unoptimized
+                              className="rounded-lg object-cover w-full h-48"
+                            />
+                          ) : (
+                            <div className="rounded-lg w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">
+                              No Image
+                            </div>
+                          )}
                           <button
                             onClick={() => handleDeleteImage(image.id)}
                             className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
