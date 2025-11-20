@@ -109,12 +109,54 @@ export default function DressDetailPage() {
     }
   };
 
+  const compressToWebp = (file: File, maxDim = 1600, quality = 0.8): Promise<File> => {
+    return new Promise((resolve) => {
+      const img = document.createElement('img');
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.naturalWidth;
+        let h = img.naturalHeight;
+        const ratio = Math.min(maxDim / w, maxDim / h, 1);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          URL.revokeObjectURL(url);
+          resolve(file);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, w, h);
+        canvas.toBlob((blob) => {
+          URL.revokeObjectURL(url);
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+          const name = file.name.replace(/\.[^.]+$/, '.webp');
+          resolve(new File([blob], name, { type: 'image/webp' }));
+        }, 'image/webp', quality);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(file);
+      };
+      img.src = url;
+    });
+  };
+
   const handleUploadImages = async (colorId: number, files: FileList | null) => {
     if (!files || files.length === 0) return;
     setUploadingImages((s) => ({ ...s, [colorId]: true }));
 
     const formData = new FormData();
-    Array.from(files).forEach((file) => formData.append('images', file));
+    const originals = Array.from(files);
+    for (const file of originals) {
+      const compressed = await compressToWebp(file);
+      formData.append('images', compressed);
+    }
 
     try {
       const res = await fetch(`/api/dresses/colors/${colorId}/images`, {
@@ -123,7 +165,7 @@ export default function DressDetailPage() {
       });
       const data = await res.json();
       if (data?.success) {
-        toast.success(`${files.length} image(s) uploaded successfully`);
+        toast.success(`${originals.length} image(s) uploaded successfully`);
         fetchDress();
       } else {
         toast.error(data?.error || 'Failed to upload images');

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trash2, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 
 interface Contact {
   id: number;
@@ -29,7 +29,7 @@ export default function ContactsPage() {
 
   const fetchContacts = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/contacts`);
+      const response = await fetch('/api/contacts', { cache: 'no-store' });
       const data = await response.json();
       if (data.success) {
         setContacts(data.data);
@@ -46,7 +46,7 @@ export default function ContactsPage() {
     if (!confirm('Are you sure you want to delete this contact message?')) return;
 
     try {
-      const response = await fetch(`${API_URL}/api/contacts/${id}`, {
+      const response = await fetch(`/api/contacts/${id}`, {
         method: 'DELETE',
       });
 

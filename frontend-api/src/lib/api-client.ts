@@ -155,15 +155,34 @@ async function apiRequest<T>(
       ...options,
       headers: {
         ...(isFormData ? {} : { "Content-Type": "application/json" }),
+        Accept: "application/json",
         ...options.headers,
       },
       cache: "no-store",
     });
 
-    const data = (await response.json()) as ApiResponse<T>;
-    return data;
+    const ct = response.headers.get("content-type") || "";
+    if (ct.includes("application/json")) {
+      try {
+        const json = (await response.json()) as ApiResponse<T>;
+        return json;
+      } catch (e) {
+        const text = await response.text();
+        return {
+          success: response.ok,
+          data: response.ok ? (text as unknown as T) : undefined,
+          error: response.ok ? undefined : text || `HTTP ${response.status}`,
+        };
+      }
+    } else {
+      const text = await response.text();
+      return {
+        success: response.ok,
+        data: response.ok ? (text as unknown as T) : undefined,
+        error: response.ok ? undefined : text || `HTTP ${response.status}`,
+      };
+    }
   } catch (error) {
-    console.error("API Request Error:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
