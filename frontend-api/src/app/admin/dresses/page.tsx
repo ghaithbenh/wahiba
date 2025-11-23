@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Plus, Trash2, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { dressesAPI } from '@/lib/api-client';
+import { dressesAPI, categoriesAPI } from '@/lib/api-client';
 
 interface Dress {
   id: number;
@@ -33,10 +33,13 @@ export default function DressesPage() {
     newCollection: false,
     isForSale: false,
     sizes: [] as string[],
+    categoryIds: [] as number[],
   });
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
 
   useEffect(() => {
     fetchDresses();
+    void fetchCategories();
   }, []);
 
   const fetchDresses = async () => {
@@ -50,6 +53,18 @@ export default function DressesPage() {
       toast.error('Failed to fetch dresses');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await categoriesAPI.getAll();
+      if (res.success && res.data) {
+        setCategories(res.data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      toast.error('Failed to fetch categories');
     }
   };
 
@@ -70,7 +85,8 @@ export default function DressesPage() {
         newCollection: formData.newCollection,
         isForSale: formData.isForSale,
         sizes: formData.sizes,
-      });
+        categoryIds: formData.categoryIds,
+      } as any);
 
       if (res.success) {
         toast.success('Dress created successfully');
@@ -83,6 +99,7 @@ export default function DressesPage() {
           newCollection: false,
           isForSale: false,
           sizes: [],
+          categoryIds: [],
         });
         fetchDresses();
       } else {
@@ -147,6 +164,31 @@ export default function DressesPage() {
               </div>
 
               <div>
+                <label className="block text-sm font-medium mb-2">Categories</label>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((cat) => {
+                    const checked = formData.categoryIds.includes(cat.id);
+                    return (
+                      <label key={cat.id} className={`px-3 py-1 rounded border cursor-pointer ${checked ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-gray-700 border-gray-300'}`}>
+                        <input
+                          type="checkbox"
+                          className="mr-2"
+                          checked={checked}
+                          onChange={() => {
+                            const next = checked
+                              ? formData.categoryIds.filter((id) => id !== cat.id)
+                              : [...formData.categoryIds, cat.id];
+                            setFormData({ ...formData, categoryIds: next });
+                          }}
+                        />
+                        {cat.name}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium mb-2">Description</label>
                 <Textarea
                   value={formData.description}
@@ -154,6 +196,7 @@ export default function DressesPage() {
                   rows={3}
                 />
               </div>
+
 
               <div className="grid grid-cols-2 gap-4">
                 <div>

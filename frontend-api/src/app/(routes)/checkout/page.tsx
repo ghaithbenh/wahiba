@@ -304,25 +304,23 @@ export default function CheckoutPage() {
                 )}
               />
 
-              {hasRentalItems && (
-                <FormField
-                  control={form.control}
-                  name="tryOnDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Date d&apos;essayage</FormLabel>
-                      <FormControl>
-                        <DatePicker 
-                          value={field.value} 
-                          onChange={field.onChange}
-                          disabled={(date) => date < new Date()}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
+              <FormField
+                control={form.control}
+                name="tryOnDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date d&apos;essayage</FormLabel>
+                    <FormControl>
+                      <DatePicker 
+                        value={field.value} 
+                        onChange={field.onChange}
+                        disabled={(date) => date < new Date()}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="flex gap-4">
                 <Button variant="outline" asChild>
@@ -431,7 +429,7 @@ export default function CheckoutPage() {
                     <span>{total.toFixed(2)} TND</span>
                   </div>
                 </div>
-                {hasRentalItems && form.watch("tryOnDate") && (
+                {form.watch("tryOnDate") && (
                   <div className="flex justify-between">
                     <span>Date d&apos;essayage</span>
                     <span>{format(form.watch("tryOnDate")!, "PPP")}</span>
